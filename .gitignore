@@ -1,0 +1,14 @@
+﻿# Carpetas de compilación
+bin/
+obj/
+
+# Archivos de Visual Studio
+.vs/
+*.user
+*.suo
+
+# Configuración local
+appsettings.Development.json
+
+# Otros
+*.log
