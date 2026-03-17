@@ -1,0 +1,33 @@
+﻿@model SistemaMatriculaUniversitaria.Models.Carrera
+
+@{
+    ViewData["Title"] = "Crear carrera";
+}
+
+<h1>Crear carrera</h1>
+
+<form asp-action="Create" method="post">
+    <!-- Campo nombre -->
+    <div class="mb-3">
+        <label asp-for="Nombre" class="form-label">Nombre de la carrera</label>
+        <input asp-for="Nombre" class="form-control" />
+        <span asp-validation-for="Nombre" class="text-danger"></span>
+    </div>
+
+    <!-- Campo descripción -->
+    <div class="mb-3">
+        <label asp-for="Descripcion" class="form-label">Descripción</label>
+        <textarea asp-for="Descripcion" class="form-control"></textarea>
+        <span asp-validation-for="Descripcion" class="text-danger"></span>
+    </div>
+
+    <!-- Botones -->
+    <button type="submit" class="btn btn-success">Guardar</button>
+    <a asp-action="Index" class="btn btn-secondary">Volver</a>
+</form>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

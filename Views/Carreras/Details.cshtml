@@ -1,0 +1,21 @@
+﻿@model SistemaMatriculaUniversitaria.Models.Carrera
+
+@{
+    ViewData["Title"] = "Detalle de carrera";
+}
+
+<h1>Detalle de carrera</h1>
+
+<div class="card">
+    <div class="card-body">
+        <h5 class="card-title">@Model.Nombre</h5>
+        <p class="card-text">
+            <strong>Descripción:</strong> @Model.Descripcion
+        </p>
+    </div>
+</div>
+
+<div class="mt-3">
+    <a asp-action="Edit" asp-route-id="@Model.CarreraId" class="btn btn-warning">Editar</a>
+    <a asp-action="Index" class="btn btn-secondary">Volver</a>
+</div>

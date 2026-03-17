@@ -1,0 +1,36 @@
+﻿@model SistemaMatriculaUniversitaria.Models.Carrera
+
+@{
+    ViewData["Title"] = "Editar carrera";
+}
+
+<h1>Editar carrera</h1>
+
+<form asp-action="Edit" method="post">
+    <!-- Campo oculto con el ID -->
+    <input type="hidden" asp-for="CarreraId" />
+
+    <!-- Campo nombre -->
+    <div class="mb-3">
+        <label asp-for="Nombre" class="form-label">Nombre de la carrera</label>
+        <input asp-for="Nombre" class="form-control" />
+        <span asp-validation-for="Nombre" class="text-danger"></span>
+    </div>
+
+    <!-- Campo descripción -->
+    <div class="mb-3">
+        <label asp-for="Descripcion" class="form-label">Descripción</label>
+        <textarea asp-for="Descripcion" class="form-control"></textarea>
+        <span asp-validation-for="Descripcion" class="text-danger"></span>
+    </div>
+
+    <!-- Botones -->
+    <button type="submit" class="btn btn-warning">Guardar cambios</button>
+    <a asp-action="Index" class="btn btn-secondary">Volver</a>
+</form>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
