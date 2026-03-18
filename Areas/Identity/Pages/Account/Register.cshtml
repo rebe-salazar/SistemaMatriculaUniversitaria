@@ -4,37 +4,49 @@
     ViewData["Title"] = "Registro";
 }
 
-<h1>Registro</h1>
+<div class="tarjeta-formulario">
+    <h1 class="titulo-formulario">Registro de usuario</h1>
+    <p class="subtitulo-formulario">
+        Crea una cuenta para acceder al sistema de matrícula universitaria.
+    </p>
 
-<div class="row">
-    <div class="col-md-6">
-        <form method="post">
-            <h4>Crear una cuenta nueva</h4>
-            <hr />
+    <form method="post">
+        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <!-- Campo de correo electrónico -->
+        <div class="form-floating mb-3">
+            <input asp-for="Input.Correo" class="form-control" autocomplete="username" placeholder="correo@ejemplo.com" />
+            <label asp-for="Input.Correo">Correo electrónico</label>
+            <span asp-validation-for="Input.Correo" class="text-danger"></span>
+        </div>
 
-            <div class="form-floating mb-3">
-                <input asp-for="Input.Correo" class="form-control" autocomplete="username" />
-                <label asp-for="Input.Correo">Correo electrónico</label>
-                <span asp-validation-for="Input.Correo" class="text-danger"></span>
-            </div>
+        <!-- Campo de contraseña -->
+        <div class="form-floating mb-3">
+            <input asp-for="Input.Contrasena" class="form-control" autocomplete="new-password" placeholder="Contraseña" />
+            <label asp-for="Input.Contrasena">Contraseña</label>
+            <span asp-validation-for="Input.Contrasena" class="text-danger"></span>
+        </div>
 
-            <div class="form-floating mb-3">
-                <input asp-for="Input.Contrasena" class="form-control" autocomplete="new-password" />
-                <label asp-for="Input.Contrasena">Contraseña</label>
-                <span asp-validation-for="Input.Contrasena" class="text-danger"></span>
-            </div>
+        <!-- Campo para confirmar contraseña -->
+        <div class="form-floating mb-3">
+            <input asp-for="Input.ConfirmarContrasena" class="form-control" autocomplete="new-password" placeholder="Confirmar contraseña" />
+            <label asp-for="Input.ConfirmarContrasena">Confirmar contraseña</label>
+            <span asp-validation-for="Input.ConfirmarContrasena" class="text-danger"></span>
+        </div>
 
-            <div class="form-floating mb-3">
-                <input asp-for="Input.ConfirmarContrasena" class="form-control" autocomplete="new-password" />
-                <label asp-for="Input.ConfirmarContrasena">Confirmar contraseña</label>
-                <span asp-validation-for="Input.ConfirmarContrasena" class="text-danger"></span>
-            </div>
+        <!-- Botón principal -->
+        <div class="d-grid mb-3">
+            <button type="submit" class="btn btn-primary btn-lg">Registrarse</button>
+        </div>
 
-            <button type="submit" class="w-100 btn btn-lg btn-primary">Registrarse</button>
-        </form>
-    </div>
+        <!-- Enlace para volver al login -->
+        <div class="text-center">
+            <p class="mb-0">
+                ¿Ya tienes una cuenta?
+                <a asp-page="./Login">Iniciar sesión</a>
+            </p>
+        </div>
+    </form>
 </div>
 
 @section Scripts {
