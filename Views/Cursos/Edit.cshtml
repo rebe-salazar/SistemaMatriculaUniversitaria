@@ -1,0 +1,40 @@
+﻿@model SistemaMatriculaUniversitaria.Models.Curso
+
+@{
+    ViewData["Title"] = "Editar curso";
+}
+
+<h1>Editar curso</h1>
+
+<form asp-action="Edit" method="post">
+    <input type="hidden" asp-for="CursoId" />
+
+    <div class="mb-3">
+        <label asp-for="Nombre" class="form-label">Nombre del curso</label>
+        <input asp-for="Nombre" class="form-control" />
+        <span asp-validation-for="Nombre" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Creditos" class="form-label">Créditos</label>
+        <input asp-for="Creditos" class="form-control" />
+        <span asp-validation-for="Creditos" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="CarreraId" class="form-label">Carrera</label>
+        <select asp-for="CarreraId" class="form-select" asp-items="ViewBag.CarreraId">
+            <option value="">-- Seleccione una carrera --</option>
+        </select>
+        <span asp-validation-for="CarreraId" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-warning">Guardar cambios</button>
+    <a asp-action="Index" class="btn btn-secondary">Volver</a>
+</form>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

@@ -1,0 +1,45 @@
+﻿@model IEnumerable<SistemaMatriculaUniversitaria.Models.Curso>
+
+@{
+    ViewData["Title"] = "Listado de cursos";
+}
+<h1>Listado de cursos</h1>
+
+<p>
+    <a asp-action="Create" class="btn btn-primary">Agregar nuevo curso</a>
+</p>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-warning">
+        No hay cursos registrados en este momento.
+    </div>
+}
+else
+{
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Créditos</th>
+                <th>Carrera</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var curso in Model)
+            {
+                <tr>
+                    <td>@curso.Nombre</td>
+                    <td>@curso.Creditos</td>
+                    <td>@curso.Carrera?.Nombre</td>
+                    <td>
+                        <a asp-action="Edit" asp-route-id="@curso.CursoId" class="btn btn-warning btn-sm">Editar</a>
+                        <a asp-action="Details" asp-route-id="@curso.CursoId" class="btn btn-info btn-sm">Detalle</a>
+                        <a asp-action="Delete" asp-route-id="@curso.CursoId" class="btn btn-danger btn-sm">Eliminar</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
