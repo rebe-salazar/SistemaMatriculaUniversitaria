@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using SistemaMatriculaUniversitaria.Data;
+using SistemaMatriculaUniversitaria.DatosIniciales;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -49,4 +50,9 @@ app.MapControllerRoute(
 
 app.MapRazorPages();
 
+using (var scope = app.Services.CreateScope())
+{
+    var servicios = scope.ServiceProvider;
+    await InicializadorRoles.CrearRolesYUsuarioAdminAsync(servicios);
+}
 app.Run();
