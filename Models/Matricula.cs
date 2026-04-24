@@ -1,24 +1,25 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SistemaMatriculaUniversitaria.Models
 {
     public class Matricula
     {
-        [Key]
         public int MatriculaId { get; set; }
 
-        [ForeignKey("Estudiante")]
+        [Required]
         public int EstudianteId { get; set; }
-
         public Estudiante? Estudiante { get; set; }
 
-        [ForeignKey("Curso")]
-        public int CursoId { get; set; }
-
-        public Curso? Curso { get; set; }
-
         [Required]
+        public int PeriodoAcademicoId { get; set; }
+        public PeriodoAcademico? PeriodoAcademico { get; set; }
+
+        [DataType(DataType.Date)]
         public DateTime FechaMatricula { get; set; } = DateTime.Now;
+
+        [StringLength(20)]
+        public string Estado { get; set; } = "Activa";
+
+        public ICollection<DetalleMatricula>? Detalles { get; set; }
     }
 }

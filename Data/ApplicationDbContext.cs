@@ -17,7 +17,8 @@ namespace SistemaMatriculaUniversitaria.Data
         public DbSet<Docente> Docentes { get; set; }
         public DbSet<Estudiante> Estudiantes { get; set; }
         public DbSet<Matricula> Matriculas { get; set; }
-
+        public DbSet<PeriodoAcademico> PeriodosAcademicos { get; set; }
+        public DbSet<DetalleMatricula> DetallesMatricula { get; set; }
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
@@ -46,12 +47,24 @@ namespace SistemaMatriculaUniversitaria.Data
                 .HasForeignKey(m => m.EstudianteId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // Relación Matricula -> Curso
-            // Se desactiva el borrado en cascada para evitar conflictos
-            builder.Entity<Matricula>()
-                .HasOne(m => m.Curso)
+            builder.Entity<Curso>()
+                .HasOne(c => c.Docente)
+                .WithMany(d => d.Cursos)
+                .HasForeignKey(c => c.DocenteId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            // Relación Matricula -> DetalleMatricula
+            builder.Entity<DetalleMatricula>()
+                .HasOne(d => d.Matricula)
+                .WithMany(m => m.Detalles)
+                .HasForeignKey(d => d.MatriculaId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Relación DetalleMatricula -> Curso
+            builder.Entity<DetalleMatricula>()
+                .HasOne(d => d.Curso)
                 .WithMany()
-                .HasForeignKey(m => m.CursoId)
+                .HasForeignKey(d => d.CursoId)
                 .OnDelete(DeleteBehavior.Restrict);
         }
     }
