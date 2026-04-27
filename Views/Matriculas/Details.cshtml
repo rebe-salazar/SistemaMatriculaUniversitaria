@@ -1,0 +1,53 @@
+﻿@model SistemaMatriculaUniversitaria.Models.Matricula
+
+@{
+    ViewData["Title"] = "Detalle de matrícula";
+}
+
+<h1>Detalle de matrícula</h1>
+@if (TempData["Exito"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["Exito"]
+    </div>
+}
+<div class="card mb-3">
+    <div class="card-body">
+        <p><strong>Estudiante:</strong> @Model.Estudiante?.NombreCompleto</p>
+        <p><strong>Periodo:</strong> @Model.PeriodoAcademico?.Nombre</p>
+        <p><strong>Fecha:</strong> @Model.FechaMatricula.ToString("dd/MM/yyyy")</p>
+        <p><strong>Estado:</strong> @Model.Estado</p>
+    </div>
+</div>
+
+<h4>Cursos matriculados</h4>
+
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th>Curso</th>
+            <th>Créditos</th>
+            <th>Docente</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var detalle in Model.Detalles)
+        {
+            <tr>
+                <td>@detalle.Curso?.Nombre</td>
+                <td>@detalle.Curso?.Creditos</td>
+                <td>@(detalle.Curso?.Docente != null ? detalle.Curso.Docente.NombreCompleto : "Sin asignar")</td>
+            </tr>
+        }
+    </tbody>
+</table>
+@{
+    var totalCreditos = Model.Detalles?.Sum(d => d.Curso?.Creditos ?? 0) ?? 0;
+}
+
+<div class="alert alert-info mt-3">
+    <strong>Total de créditos matriculados:</strong> @totalCreditos
+</div>
+<a asp-action="Create" class="btn btn-primary">Realizar otra matrícula</a>
+<a asp-controller="Home" asp-action="Index" class="btn btn-secondary">Volver al inicio</a>
+<a asp-action="Index" class="btn btn-secondary">Volver al listado</a>

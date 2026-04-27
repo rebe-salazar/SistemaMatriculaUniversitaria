@@ -465,3 +465,23 @@ textarea {
         padding: 1rem 0;
     }
 }
+.container {
+    max-width: 95% !important;
+}
+
+.card {
+    border-radius: 12px;
+}
+
+.table {
+    font-size: 0.95rem;
+}
+
+.table-responsive {
+    width: 100%;
+    overflow-x: auto;
+}
+
+form {
+    width: 100%;
+}

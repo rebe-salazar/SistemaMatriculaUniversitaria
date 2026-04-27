@@ -28,6 +28,13 @@
         </select>
         <span asp-validation-for="CarreraId" class="text-danger"></span>
     </div>
+    <div class="form-group mb-3">
+        <label asp-for="DocenteId" class="control-label">Docente asignado</label>
+        <select asp-for="DocenteId" class="form-control" asp-items="ViewBag.DocenteId">
+            <option value="">-- Seleccione un docente --</option>
+        </select>
+        <span asp-validation-for="DocenteId" class="text-danger"></span>
+    </div>
 
     <button type="submit" class="btn btn-warning">Guardar cambios</button>
     <a asp-action="Index" class="btn btn-secondary">Volver</a>
@@ -38,3 +45,6 @@
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
 }
+<a asp-action="Index" class="btn btn-secondary">
+    Volver al listado
+</a>
