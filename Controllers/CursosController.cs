@@ -7,7 +7,7 @@ using SistemaMatriculaUniversitaria.Models;
 
 namespace SistemaMatriculaUniversitaria.Controllers
 {
-    // Solo el administrador puede gestionar cursos
+    //Solo el administrador tiene acceso
     [Authorize(Roles = "Administrador")]
     public class CursosController : Controller
     {
@@ -19,7 +19,6 @@ namespace SistemaMatriculaUniversitaria.Controllers
             _contexto = contexto;
         }
 
-        // =====================================
         // LISTAR TODOS LOS CURSOS
         // =====================================
         public async Task<IActionResult> Index()
