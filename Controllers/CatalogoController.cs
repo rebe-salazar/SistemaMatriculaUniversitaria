@@ -15,7 +15,7 @@ namespace SistemaMatriculaUniversitaria.Controllers
         }
 
         // Muestra las carreras disponibles para cualquier usuario
-        public async Task<IActionResult> CarrerasDisponibles()
+        public async Task<IActionResult> Index()
         {
             var carreras = await _contexto.Carreras.ToListAsync();
             return View(carreras);

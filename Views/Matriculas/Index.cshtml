@@ -1,0 +1,62 @@
+﻿@model IEnumerable<SistemaMatriculaUniversitaria.Models.Matricula>
+
+@{
+    ViewData["Title"] = "Listado de matrículas";
+}
+
+<h1>Listado de matrículas</h1>
+
+<p>
+    <a asp-action="Create" class="btn btn-primary">Realizar nueva matrícula</a>
+</p>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-warning">
+        No hay matrículas registradas.
+    </div>
+}
+else
+{
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>Estudiante</th>
+                <th>Periodo</th>
+                <th>Fecha</th>
+                <th>Estado</th>
+                <th>Cantidad de cursos</th>
+                <th>Total créditos</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            @foreach (var matricula in Model)
+            {
+                var totalCreditos = matricula.Detalles?.Sum(d => d.Curso?.Creditos ?? 0) ?? 0;
+
+                <tr>
+                    <td>@matricula.Estudiante?.NombreCompleto</td>
+                    <td>@matricula.PeriodoAcademico?.Nombre</td>
+                    <td>@matricula.FechaMatricula.ToString("dd/MM/yyyy")</td>
+                    <td>@matricula.Estado</td>
+                    <td>@(matricula.Detalles?.Count ?? 0)</td>
+                    <td>@totalCreditos</td>
+
+                    <td>
+                        <a asp-action="Details"
+                           asp-route-id="@matricula.MatriculaId"
+                           class="btn btn-info btn-sm">
+                            Detalles
+                        </a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<a asp-controller="Home" asp-action="Index" class="btn btn-secondary">
+    Volver al inicio
+</a>

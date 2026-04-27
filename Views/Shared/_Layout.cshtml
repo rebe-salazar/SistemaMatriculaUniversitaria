@@ -21,21 +21,54 @@
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
+
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-controller="Home" asp-action="Index">Inicio</a>
                         </li>
+
+                        <!-- Público -->
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-controller="Carreras" asp-action="Index">Carreras</a>
+                            <a class="nav-link text-dark" asp-controller="Catalogo" asp-action="Index">
+                                Carreras disponibles
+                            </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-controller="Catalogo" asp-action="CarrerasDisponibles">Carreras disponibles</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-controller="Cursos" asp-action="Index">Cursos</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacidad</a>
-                        </li>
+
+                        @if (User.IsInRole("Administrador"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="Carreras" asp-action="Index">
+                                    Administrar carreras
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="Cursos" asp-action="Index">
+                                    Administrar cursos
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="Docentes" asp-action="Index">
+                                    Administrar docentes
+                                </a>
+                            </li>
+                        }
+
+                        @if (User.IsInRole("Estudiante"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="Matriculas" asp-action="Create">
+                                    Nueva matrícula
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="Matriculas" asp-action="Index">
+                                    Mis matrículas
+                                </a>
+                            </li>
+                        }
+
                     </ul>
                     <partial name="_LoginPartial" />
                 </div>

@@ -1,0 +1,172 @@
+﻿@model SistemaMatriculaUniversitaria.ViewModels.MatriculaViewModel
+
+@{
+    ViewData["Title"] = "Realizar matrícula";
+}
+
+<div class="container-fluid px-4">
+    <div class="card shadow-sm">
+        <div class="card-body">
+
+            <h1 class="mb-4">Realizar matrícula</h1>
+
+            <form asp-action="Create" method="post">
+
+                <div asp-validation-summary="All" class="text-danger mb-3"></div>
+
+                <div class="form-group mb-3">
+                    <label>Periodo académico</label>
+                    <select asp-for="PeriodoAcademicoId" class="form-control">
+                        <option value="">-- Seleccione un periodo --</option>
+                        @foreach (var periodo in Model.Periodos)
+                        {
+                            <option value="@periodo.PeriodoAcademicoId">@periodo.Nombre</option>
+                        }
+                    </select>
+                    <span asp-validation-for="PeriodoAcademicoId" class="text-danger"></span>
+                </div>
+
+                <h4>Cursos disponibles</h4>
+
+                <div class="alert alert-info">
+                    Máximo permitido: <strong>18 créditos</strong> por periodo académico.
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped" id="tablaCursos">
+                        <thead>
+                            <tr>
+                                <th>Seleccionar</th>
+                                <th>Curso</th>
+                                <th>Créditos</th>
+                                <th>Carrera</th>
+                                <th>Docente</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            @foreach (var curso in Model.CursosDisponibles)
+                            {
+                                <tr>
+                                    <td>
+                                        <input type="checkbox"
+                                               name="CursosSeleccionados"
+                                               value="@curso.CursoId"
+                                               class="curso-checkbox"
+                                               data-creditos="@curso.Creditos" />
+                                    </td>
+                                    <td>@curso.Nombre</td>
+                                    <td>@curso.Creditos</td>
+                                    <td>@curso.Carrera?.Nombre</td>
+                                    <td>@(curso.Docente != null ? curso.Docente.NombreCompleto : "Sin asignar")</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="alert alert-light border mt-3">
+                    <strong>Total de créditos seleccionados:</strong>
+                    <span id="totalCreditos">0</span> / 18
+                </div>
+
+                <div class="mb-3">
+                    <button type="submit" id="btnConfirmar" class="btn btn-success" disabled>
+                        Confirmar matrícula
+                    </button>
+
+                    <a asp-controller="Home" asp-action="Index" class="btn btn-secondary">
+                        Cancelar
+                    </a>
+                </div>
+
+                <nav>
+                    <ul class="pagination" id="paginacionCursos"></ul>
+                </nav>
+                TempData["Exito"] = "Matrícula realizada correctamente.";
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+
+            const maxCreditos = 18;
+            const filasPorPagina = 10;
+
+            const checkboxes = document.querySelectorAll(".curso-checkbox");
+            const totalCreditosSpan = document.getElementById("totalCreditos");
+            const btnConfirmar = document.getElementById("btnConfirmar");
+
+            function actualizarCreditos() {
+                let total = 0;
+                let seleccionados = 0;
+
+                checkboxes.forEach(function (checkbox) {
+                    if (checkbox.checked) {
+                        total += parseInt(checkbox.getAttribute("data-creditos")) || 0;
+                        seleccionados++;
+                    }
+                });
+
+                totalCreditosSpan.textContent = total;
+
+                if (seleccionados === 0 || total > maxCreditos) {
+                    btnConfirmar.disabled = true;
+                } else {
+                    btnConfirmar.disabled = false;
+                }
+
+                if (total > maxCreditos) {
+                    totalCreditosSpan.classList.add("text-danger", "fw-bold");
+                } else {
+                    totalCreditosSpan.classList.remove("text-danger", "fw-bold");
+                }
+            }
+
+            checkboxes.forEach(function (checkbox) {
+                checkbox.addEventListener("change", actualizarCreditos);
+            });
+
+            actualizarCreditos();
+
+            // Paginación simple de 10 cursos por página
+            const tabla = document.getElementById("tablaCursos");
+            const filas = Array.from(tabla.querySelectorAll("tbody tr"));
+            const paginacion = document.getElementById("paginacionCursos");
+            const totalPaginas = Math.ceil(filas.length / filasPorPagina);
+
+            function mostrarPagina(pagina) {
+                const inicio = (pagina - 1) * filasPorPagina;
+                const fin = inicio + filasPorPagina;
+
+                filas.forEach(function (fila, index) {
+                    fila.style.display = index >= inicio && index < fin ? "" : "none";
+                });
+
+                paginacion.innerHTML = "";
+
+                for (let i = 1; i <= totalPaginas; i++) {
+                    const li = document.createElement("li");
+                    li.className = "page-item " + (i === pagina ? "active" : "");
+
+                    const boton = document.createElement("button");
+                    boton.type = "button";
+                    boton.className = "page-link";
+                    boton.textContent = i;
+
+                    boton.addEventListener("click", function () {
+                        mostrarPagina(i);
+                    });
+
+                    li.appendChild(boton);
+                    paginacion.appendChild(li);
+                }
+            }
+
+            mostrarPagina(1);
+        });
+    </script>
+}

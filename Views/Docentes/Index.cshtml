@@ -1,0 +1,55 @@
+﻿@model IEnumerable<SistemaMatriculaUniversitaria.Models.Docente>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Docentes</h1>
+<p>
+    <a asp-action="Create" class="btn btn-primary">Agregar docente</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.NombreCompleto)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Correo)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Especialidad)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Activo)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.NombreCompleto)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Correo)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Especialidad)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Activo)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.DocenteId">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.DocenteId">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.DocenteId">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
+<a asp-controller="Home" asp-action="Index" class="btn btn-secondary mb-3">
+    Volver al inicio
+</a>

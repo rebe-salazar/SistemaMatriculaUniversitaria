@@ -3,11 +3,31 @@
 @{
     ViewData["Title"] = "Listado de cursos";
 }
+
 <h1>Listado de cursos</h1>
 
 <p>
     <a asp-action="Create" class="btn btn-primary">Agregar nuevo curso</a>
 </p>
+
+<!-- Filtro por docente: se coloca antes de la tabla para que el usuario pueda buscar cursos por profesor asignado -->
+<form method="get" class="mb-3">
+    <div class="row">
+        <div class="col-md-4">
+            <select name="docenteId" class="form-control" asp-items="ViewBag.Docentes">
+                <option value="">-- Filtrar por docente --</option>
+            </select>
+        </div>
+
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-primary">Filtrar</button>
+        </div>
+
+        <div class="col-md-2">
+            <a asp-action="Index" class="btn btn-secondary">Limpiar</a>
+        </div>
+    </div>
+</form>
 
 @if (!Model.Any())
 {
@@ -23,9 +43,11 @@ else
                 <th>Nombre</th>
                 <th>Créditos</th>
                 <th>Carrera</th>
+                <th>Docente</th>
                 <th>Acciones</th>
             </tr>
         </thead>
+
         <tbody>
             @foreach (var curso in Model)
             {
@@ -33,6 +55,18 @@ else
                     <td>@curso.Nombre</td>
                     <td>@curso.Creditos</td>
                     <td>@curso.Carrera?.Nombre</td>
+
+                    <td>
+                        @if (curso.Docente != null)
+                        {
+                            <span class="badge bg-success">@curso.Docente.NombreCompleto</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary">Sin asignar</span>
+                        }
+                    </td>
+
                     <td>
                         <a asp-action="Edit" asp-route-id="@curso.CursoId" class="btn btn-warning btn-sm">Editar</a>
                         <a asp-action="Details" asp-route-id="@curso.CursoId" class="btn btn-info btn-sm">Detalle</a>
@@ -42,4 +76,8 @@ else
             }
         </tbody>
     </table>
+
 }
+<a asp-controller="Home" asp-action="Index" class="btn btn-secondary mb-3">
+    Volver al inicio
+</a>
