@@ -1,7 +1,31 @@
 ﻿@model IEnumerable<SistemaMatriculaUniversitaria.Models.Curso>
+@using Microsoft.AspNetCore.Mvc.Rendering
 
 @{
     ViewData["Title"] = "Listado de cursos";
+    <p class="text-muted">
+        Administración de cursos con filtros dinámicos, paginación y búsqueda en tiempo real.
+    </p>
+    // Variables que vienen del controlador para manejar paginación y filtros
+    int paginaActual = ViewBag.PaginaActual ?? 1;
+    int totalPaginas = ViewBag.TotalPaginas ?? 1;
+    int? docenteId = ViewBag.DocenteId;
+    string buscar = ViewBag.Buscar as string ?? "";
+
+    // Aquí obtengo el nombre del docente seleccionado para mostrarlo en el mensaje de filtros
+    string? docenteNombre = null;
+
+    if (ViewBag.Docentes != null && docenteId != null)
+    {
+        foreach (var d in (IEnumerable<SelectListItem>)ViewBag.Docentes)
+        {
+            if (d.Value == docenteId.ToString())
+            {
+                docenteNombre = d.Text;
+                break;
+            }
+        }
+    }
 }
 
 <h1>Listado de cursos</h1>
@@ -10,74 +34,164 @@
     <a asp-action="Create" class="btn btn-primary">Agregar nuevo curso</a>
 </p>
 
-<!-- Filtro por docente: se coloca antes de la tabla para que el usuario pueda buscar cursos por profesor asignado -->
 <form method="get" class="mb-3">
-    <div class="row">
+    <div class="row g-2">
+
         <div class="col-md-4">
             <select name="docenteId" class="form-control" asp-items="ViewBag.Docentes">
-                <option value="">-- Filtrar por docente --</option>
+                <option value="">-- Todos los docentes --</option>
             </select>
         </div>
 
-        <div class="col-md-2">
-            <button type="submit" class="btn btn-primary">Filtrar</button>
+        <div class="col-md-4">
+            <input type="text"
+                   name="buscar"
+                   value="@buscar"
+                   class="form-control"
+                   placeholder="Buscar por curso, código, carrera o docente" />
         </div>
 
         <div class="col-md-2">
-            <a asp-action="Index" class="btn btn-secondary">Limpiar</a>
+            <button type="submit" class="btn btn-primary w-100">Filtrar</button>
         </div>
+
+        <div class="col-md-2">
+            <a asp-action="Index" class="btn btn-secondary w-100">Limpiar</a>
+        </div>
+
     </div>
 </form>
+<div class="alert alert-light border">
+    El filtro rápido busca solo en los cursos visibles de esta página.
+    Para buscar en todos los registros, use el botón <strong>Filtrar</strong>.
+</div>
+
+@if (!string.IsNullOrWhiteSpace(buscar) || docenteId != null)
+{
+    <div class="alert alert-info">
+        <strong>Filtros aplicados:</strong>
+
+        @if (!string.IsNullOrWhiteSpace(buscar))
+        {
+            <span>Texto: <strong>@buscar</strong></span>
+        }
+
+        @if (docenteNombre != null)
+        {
+            <span class="ms-2">Docente: <strong>@docenteNombre</strong></span>
+        }
+    </div>
+}
 
 @if (!Model.Any())
 {
     <div class="alert alert-warning">
-        No hay cursos registrados en este momento.
+        No hay cursos registrados con los filtros seleccionados.
     </div>
 }
 else
 {
-    <table class="table table-bordered table-striped">
-        <thead>
-            <tr>
-                <th>Nombre</th>
-                <th>Créditos</th>
-                <th>Carrera</th>
-                <th>Docente</th>
-                <th>Acciones</th>
-            </tr>
-        </thead>
-
-        <tbody>
-            @foreach (var curso in Model)
-            {
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped">
+            <thead>
                 <tr>
-                    <td>@curso.Nombre</td>
-                    <td>@curso.Creditos</td>
-                    <td>@curso.Carrera?.Nombre</td>
-
-                    <td>
-                        @if (curso.Docente != null)
-                        {
-                            <span class="badge bg-success">@curso.Docente.NombreCompleto</span>
-                        }
-                        else
-                        {
-                            <span class="badge bg-secondary">Sin asignar</span>
-                        }
-                    </td>
-
-                    <td>
-                        <a asp-action="Edit" asp-route-id="@curso.CursoId" class="btn btn-warning btn-sm">Editar</a>
-                        <a asp-action="Details" asp-route-id="@curso.CursoId" class="btn btn-info btn-sm">Detalle</a>
-                        <a asp-action="Delete" asp-route-id="@curso.CursoId" class="btn btn-danger btn-sm">Eliminar</a>
-                    </td>
+                    <th>Nombre</th>
+                    <th>Código</th>
+                    <th>Créditos</th>
+                    <th>Carrera</th>
+                    <th>Docente</th>
+                    <th>Acciones</th>
                 </tr>
-            }
-        </tbody>
-    </table>
+            </thead>
 
+            <tbody>
+                @foreach (var curso in Model)
+                {
+                    <tr>
+                        <td>@curso.Nombre</td>
+                        <td>@curso.Codigo</td>
+                        <td>@curso.Creditos</td>
+                        <td>@curso.Carrera?.Nombre</td>
+
+                        <td>
+                            @if (curso.Docente != null)
+                            {
+                                <span class="badge bg-success">@curso.Docente.NombreCompleto</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">Sin asignar</span>
+                            }
+                        </td>
+
+                        <td>
+                            <a asp-action="Edit" asp-route-id="@curso.CursoId" class="btn btn-warning btn-sm">Editar</a>
+                            <a asp-action="Details" asp-route-id="@curso.CursoId" class="btn btn-info btn-sm">Detalle</a>
+                            <a asp-action="Delete" asp-route-id="@curso.CursoId" class="btn btn-danger btn-sm">Eliminar</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    @if (totalPaginas > 1)
+    {
+        <nav>
+            <ul class="pagination">
+                @for (int i = 1; i <= totalPaginas; i++)
+                {
+                    <li class="page-item @(i == paginaActual ? "active" : "")">
+                        <a class="page-link"
+                           asp-action="Index"
+                           asp-route-pagina="@i"
+                           asp-route-docenteId="@docenteId"
+                           asp-route-buscar="@buscar">
+                            @i
+                        </a>
+                    </li>
+                }
+            </ul>
+        </nav>
+    }
 }
+
 <a asp-controller="Home" asp-action="Index" class="btn btn-secondary mb-3">
     Volver al inicio
 </a>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+
+            // Obtengo los elementos del DOM
+            const inputBuscar = document.querySelector('input[name="buscar"]');
+            const selectDocente = document.querySelector('select[name="docenteId"]');
+            // Lista de filas de la tabla (evita errores si no hay registros)
+            const filas = document.querySelectorAll("tbody tr") || [];
+
+            // Función que filtra dinámicamente los resultados visibles en la tabla
+            function filtrar() {
+                const texto = inputBuscar.value.toLowerCase();
+                const docenteTexto = selectDocente.options[selectDocente.selectedIndex].text.toLowerCase();
+                const docenteSeleccionado = selectDocente.value;
+
+                filas.forEach(function (fila) {
+                    const contenido = fila.innerText.toLowerCase();
+                    const cumpleTexto = contenido.includes(texto);
+
+                    let cumpleDocente = true;
+
+                    if (docenteSeleccionado !== "") {
+                        cumpleDocente = contenido.includes(docenteTexto);
+                    }
+
+                    fila.style.display = (cumpleTexto && cumpleDocente) ? "" : "none";
+                });
+            }
+
+            inputBuscar.addEventListener("keyup", filtrar);
+            selectDocente.addEventListener("change", filtrar);
+        });
+    </script>
+}

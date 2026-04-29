@@ -50,6 +50,7 @@ app.MapControllerRoute(
 
 app.MapRazorPages();
 
+
 using (var scope = app.Services.CreateScope())
 {
     var servicios = scope.ServiceProvider;
