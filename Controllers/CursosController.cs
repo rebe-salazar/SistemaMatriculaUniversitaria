@@ -1,17 +1,15 @@
-﻿using Microsoft.AspNetCore.Authorization; // Permite restringir acceso por roles
-using Microsoft.AspNetCore.Mvc; // Base para controladores MVC
-using Microsoft.AspNetCore.Mvc.Rendering; // Para dropdowns (SelectList)
-using Microsoft.EntityFrameworkCore; // Para consultas con Include, async, etc
-using SistemaMatriculaUniversitaria.Data; // Contexto de base de datos
-using SistemaMatriculaUniversitaria.Models; // Modelos (Curso, Docente, etc)
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
+using SistemaMatriculaUniversitaria.Data;
+using SistemaMatriculaUniversitaria.Models;
 
 namespace SistemaMatriculaUniversitaria.Controllers
 {
-    // Solo administradores pueden acceder a este controlador
     [Authorize(Roles = "Administrador")]
     public class CursosController : Controller
     {
-        // Contexto de base de datos (inyección de dependencias)
         private readonly ApplicationDbContext _contexto;
 
         public CursosController(ApplicationDbContext contexto)
@@ -19,41 +17,66 @@ namespace SistemaMatriculaUniversitaria.Controllers
             _contexto = contexto;
         }
 
-        // ============================================
-        // LISTAR CURSOS
-        // ============================================
-        public async Task<IActionResult> Index(int? docenteId)
+        // LISTAR CURSOS CON FILTRO Y PAGINACIÓN
+        public async Task<IActionResult> Index(int? docenteId, string? buscar, int pagina = 1)
         {
+            int registrosPorPagina = 10;
+
             var cursos = _contexto.Cursos
                 .Include(c => c.Carrera)
                 .Include(c => c.Docente)
                 .AsQueryable();
 
-            // Filtro por docente
+            // Filtro por docente seleccionado en dropdown
             if (docenteId.HasValue)
             {
                 cursos = cursos.Where(c => c.DocenteId == docenteId);
             }
 
-            // Cargar docentes para el filtro
+            // Filtro por texto: busca por curso, código, carrera o docente
+            // Filtro por texto: busca por curso, código, carrera o docente
+            if (!string.IsNullOrWhiteSpace(buscar))
+            {
+                cursos = cursos.Where(c =>
+                    c.Nombre.Contains(buscar) ||
+                    c.Codigo.Contains(buscar) ||
+                    (c.Carrera != null && c.Carrera.Nombre.Contains(buscar)) ||
+                    (c.Docente != null && c.Docente.NombreCompleto.ToLower().Contains(buscar))
+                );
+            }
+
+            int totalRegistros = await cursos.CountAsync();
+            int totalPaginas = (int)Math.Ceiling(totalRegistros / (double)registrosPorPagina);
+
+            var cursosPaginados = await cursos
+                .OrderBy(c => c.Nombre)
+                .Skip((pagina - 1) * registrosPorPagina)
+                .Take(registrosPorPagina)
+                .ToListAsync();
+
             ViewBag.Docentes = new SelectList(
-                await _contexto.Docentes.Where(d => d.Activo).ToListAsync(),
+                await _contexto.Docentes
+                    .Where(d => d.Activo)
+                    .OrderBy(d => d.NombreCompleto)
+                    .ToListAsync(),
                 "DocenteId",
                 "NombreCompleto",
                 docenteId
             );
 
-            return View(await cursos.ToListAsync());
+            ViewBag.Buscar = buscar;
+            ViewBag.DocenteId = docenteId;
+            ViewBag.PaginaActual = pagina;
+            ViewBag.TotalPaginas = totalPaginas;
+
+            return View(cursosPaginados);
         }
 
-        // ============================================
         // VER DETALLE DE UN CURSO
-        // ============================================
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null) return NotFound();
 
-            // Busca el curso incluyendo relaciones
             var curso = await _contexto.Cursos
                 .Include(c => c.Carrera)
                 .Include(c => c.Docente)
@@ -64,29 +87,21 @@ namespace SistemaMatriculaUniversitaria.Controllers
             return View(curso);
         }
 
-        // ============================================
         // MOSTRAR FORMULARIO DE CREACIÓN
-        // ============================================
         [HttpGet]
         public async Task<IActionResult> Create()
         {
-            // Cargar dropdown de carreras
             await CargarCarrerasAsync();
-
-            // Cargar dropdown de docentes
             await CargarDocentesAsync();
 
             return View();
         }
 
-        // ============================================
         // GUARDAR NUEVO CURSO
-        // ============================================
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Curso curso)
         {
-            // Si los datos del formulario son válidos
             if (ModelState.IsValid)
             {
                 _contexto.Cursos.Add(curso);
@@ -95,16 +110,13 @@ namespace SistemaMatriculaUniversitaria.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            // Si hay errores, recargar dropdowns
             await CargarCarrerasAsync(curso.CarreraId);
             await CargarDocentesAsync(curso.DocenteId);
 
             return View(curso);
         }
 
-        // ============================================
         // MOSTRAR FORMULARIO DE EDICIÓN
-        // ============================================
         [HttpGet]
         public async Task<IActionResult> Edit(int? id)
         {
@@ -114,16 +126,13 @@ namespace SistemaMatriculaUniversitaria.Controllers
 
             if (curso == null) return NotFound();
 
-            // Cargar dropdowns con valores seleccionados
             await CargarCarrerasAsync(curso.CarreraId);
             await CargarDocentesAsync(curso.DocenteId);
 
             return View(curso);
         }
 
-        // ============================================
         // GUARDAR CAMBIOS DE EDICIÓN
-        // ============================================
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, Curso curso)
@@ -150,16 +159,13 @@ namespace SistemaMatriculaUniversitaria.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            // Si hay error, volver a cargar dropdowns
             await CargarCarrerasAsync(curso.CarreraId);
             await CargarDocentesAsync(curso.DocenteId);
 
             return View(curso);
         }
 
-        // ============================================
         // MOSTRAR CONFIRMACIÓN DE ELIMINACIÓN
-        // ============================================
         [HttpGet]
         public async Task<IActionResult> Delete(int? id)
         {
@@ -175,9 +181,7 @@ namespace SistemaMatriculaUniversitaria.Controllers
             return View(curso);
         }
 
-        // ============================================
         // ELIMINAR CURSO
-        // ============================================
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
@@ -193,34 +197,24 @@ namespace SistemaMatriculaUniversitaria.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // ============================================
-        // VALIDAR EXISTENCIA
-        // ============================================
         private bool CursoExiste(int id)
         {
             return _contexto.Cursos.Any(c => c.CursoId == id);
         }
 
-        // ============================================
-        // CARGAR CARRERAS EN DROPDOWN
-        // ============================================
         private async Task CargarCarrerasAsync(object? carreraSeleccionada = null)
         {
             var carreras = await _contexto.Carreras
                 .OrderBy(c => c.Nombre)
                 .ToListAsync();
 
-            // Se envía al ViewBag para usar en la vista
             ViewBag.CarreraId = new SelectList(carreras, "CarreraId", "Nombre", carreraSeleccionada);
         }
 
-        // ============================================
-        // CARGAR DOCENTES EN DROPDOWN
-        // ============================================
         private async Task CargarDocentesAsync(object? docenteSeleccionado = null)
         {
             var docentes = await _contexto.Docentes
-                .Where(d => d.Activo) // Solo docentes activos
+                .Where(d => d.Activo)
                 .OrderBy(d => d.NombreCompleto)
                 .ToListAsync();
 

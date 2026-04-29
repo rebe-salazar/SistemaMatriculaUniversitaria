@@ -22,11 +22,48 @@ namespace SistemaMatriculaUniversitaria.Controllers
         }
 
         // GET: Docentes
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string? buscar, bool? activo, int pagina = 1)
         {
-              return _context.Docentes != null ? 
-                          View(await _context.Docentes.ToListAsync()) :
-                          Problem("Entity set 'ApplicationDbContext.Docentes'  is null.");
+            if (_context.Docentes == null)
+            {
+                return Problem("Entity set 'ApplicationDbContext.Docentes' is null.");
+            }
+
+            int registrosPorPagina = 10;
+
+            var docentes = _context.Docentes.AsQueryable();
+
+            // Filtro por texto: permite buscar por nombre, correo o especialidad.
+            if (!string.IsNullOrWhiteSpace(buscar))
+            {
+                docentes = docentes.Where(d =>
+                    d.NombreCompleto.Contains(buscar) ||
+                    d.Correo.Contains(buscar) ||
+                    d.Especialidad.Contains(buscar)
+                );
+            }
+
+            // Filtro por estado: permite mostrar solo docentes activos o inactivos.
+            if (activo.HasValue)
+            {
+                docentes = docentes.Where(d => d.Activo == activo.Value);
+            }
+
+            int totalRegistros = await docentes.CountAsync();
+            int totalPaginas = (int)Math.Ceiling(totalRegistros / (double)registrosPorPagina);
+
+            var docentesPaginados = await docentes
+                .OrderBy(d => d.NombreCompleto)
+                .Skip((pagina - 1) * registrosPorPagina)
+                .Take(registrosPorPagina)
+                .ToListAsync();
+
+            ViewBag.Buscar = buscar;
+            ViewBag.Activo = activo;
+            ViewBag.PaginaActual = pagina;
+            ViewBag.TotalPaginas = totalPaginas;
+
+            return View(docentesPaginados);
         }
 
         // GET: Docentes/Details/5
